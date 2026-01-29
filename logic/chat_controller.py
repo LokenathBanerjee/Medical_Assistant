@@ -1,77 +1,92 @@
 import streamlit as st
 from llm.gemini_langchain import call_gemini
-from logic.medical_guard import is_medical_query, medical_only_message
 from logic.emergency import is_emergency, emergency_message
+from logic.medical_guard import is_medical_query, medical_only_message
+
+QUESTION_SETS = [
+    """1️⃣ What is your main problem and since when?
+Options:
+- Fever
+- Cough
+- Cold
+- Headache
+- Body pain
+Example: Fever for 2 days""",
+
+    """2️⃣ Do you currently have fever?
+Options:
+- Yes (high)
+- Yes (mild)
+- No
+- Not sure""",
+
+    """3️⃣ Are you experiencing any of these? (you can mention multiple)
+Options:
+- Cough
+- Cold
+- Sore throat
+- Body pain
+- Headache
+- None""",
+
+    """4️⃣ How severe are your symptoms?
+Options:
+- Mild
+- Moderate
+- Severe""",
+
+    """5️⃣ Have you taken any medicine or do you have allergies?
+Options:
+- No medicine taken
+- Took paracetamol
+- Took antibiotics
+- Have drug allergy
+- Not sure"""
+]
 
 
 def handle_chat(user_input: str) -> str:
-    """
-    Human-like doctor conversation controller.
-    LLM decides what to ask next.
-    Python only handles safety + memory.
-    """
-
-    # ----------------- EMERGENCY FIRST -----------------
-    if is_emergency(user_input):
+    # 🚨 Emergency check
+    if user_input and is_emergency(user_input):
         return emergency_message()
 
-    # ----------------- INIT MEMORY -----------------
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = []
+    # ✅ INIT STATE & ASK FIRST QUESTION
+    if "step" not in st.session_state:
+        st.session_state.step = 0
+        st.session_state.answers = []
+        return QUESTION_SETS[0]
 
-    # ----------------- MEDICAL ONLY (FIRST MESSAGE) -----------------
-    if not st.session_state.conversation and not is_medical_query(user_input):
+    # ✅ STORE ANSWER
+    st.session_state.answers.append(
+        f"Q{st.session_state.step + 1}: {user_input}"
+    )
+
+    # ✅ MEDICAL-ONLY CHECK (ONLY AFTER Q1 ANSWER)
+    if st.session_state.step == 0 and not is_medical_query(user_input):
+        # Roll back storing invalid answer
+        st.session_state.answers.pop()
         return medical_only_message()
 
-    # ----------------- STORE USER MESSAGE -----------------
-    st.session_state.conversation.append(f"Patient: {user_input}")
+    st.session_state.step += 1
 
-    # ----------------- DOCTOR THINKING PROMPT -----------------
-    doctor_prompt = f"""
-You are an experienced, calm medical doctor talking to a patient.
-
-Conversation so far:
-{chr(10).join(st.session_state.conversation)}
-
-Your task:
-- Ask ONE natural follow-up question like a real doctor
-- Do NOT repeat questions already answered
-- Accept vague answers (yes, no, not sure, maybe)
-- Do NOT force temperature numbers
-- Decide what is most clinically useful to ask next
-- If you already have enough information, reply ONLY with:
-  DIAGNOSIS_READY
-
-Style:
-- Friendly
-- Short
-- Human
-- Not robotic
-"""
-
-    doctor_reply = call_gemini(doctor_prompt).strip()
-
-    # ----------------- IF READY FOR DIAGNOSIS -----------------
-    if "DIAGNOSIS_READY" in doctor_reply.upper():
-        diagnosis_prompt = f"""
+    # 🛑 AFTER 5 QUESTIONS → DIAGNOSIS
+    if st.session_state.step >= len(QUESTION_SETS):
+        prompt = f"""
 You are a medical assistant.
 
-Based on the following patient conversation:
-{chr(10).join(st.session_state.conversation)}
+Patient responses:
+{chr(10).join(st.session_state.answers)}
 
-Provide:
-1. Probable diagnosis (brief, non-alarming)
-2. Medicines:
+Based on this information:
+1. Probable diagnosis (short, safe)
+2. Medicines:(rupees in INR)
    - Cheap (generic)
    - Moderate
    - Expensive
-3. Clear medical disclaimer (not a diagnosis, consult doctor)
-
-Keep it simple and safe.
+3. Home care advice
+4. Clear medical disclaimer
 """
-        return call_gemini(diagnosis_prompt)
+        return call_gemini(prompt)
 
-    # ----------------- STORE DOCTOR QUESTION -----------------
-    st.session_state.conversation.append(f"Doctor: {doctor_reply}")
-
-    return doctor_reply
+    # ✅ ASK NEXT QUESTION
+    return QUESTION_SETS[st.session_state.step]
