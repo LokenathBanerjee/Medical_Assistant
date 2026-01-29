@@ -91,6 +91,8 @@ pip install -r requirements.txt
 4️⃣ Setup environment variables
 Create a .env file:
 streamlit run app.py
+```
+
 ⚕️ Medical Disclaimer
 
 This application is NOT a replacement for a licensed medical professional.
