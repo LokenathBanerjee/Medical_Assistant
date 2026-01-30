@@ -1,146 +1,185 @@
-# 🩺 AI Medical Assistant (Streamlit + Gemini)
+# 🩺 AI Medical Assistant
 
-An intelligent **AI-powered Medical Assistant** built using **Streamlit** and **Google Gemini API**.  
-The system interacts like a doctor by asking step-by-step questions, detects medical emergencies, restricts non-medical queries, and provides safe diagnostic suggestions with medicine recommendations.
+An intelligent **clinical-style AI assistant** that performs step-by-step symptom analysis, asks follow-up questions like a doctor, checks emergency conditions, and finally provides **diagnosis guidance + exact medicine recommendations with cheap vs expensive alternatives**.
+
+Built with **LLM + Medical Logic + RAG + Voice Assistant + Memory**.
+
+---
+
+## 📖 About This Project
+
+The **AI Medical Assistant** simulates a clinical consultation process using Artificial Intelligence.  
+It interacts with users step-by-step, gathers symptom information, evaluates safety conditions, and provides structured medical guidance along with medicine suggestions.
+
+This project demonstrates:
+
+- Conversational AI in healthcare  
+- Rule-based medical reasoning  
+- LLM-powered diagnosis-style analysis  
+- Retrieval Augmented Generation (RAG)  
+- Voice-based symptom input  
+- Structured symptom extraction  
+- Medicine recommendation with price comparison  
+
+⚠️ The system focuses on **guidance**, not medical diagnosis replacement.
 
 ---
 
 ## 🚀 Features
 
-- ✅ **Doctor-like step-by-step questioning**
-- 🚨 **Automatic emergency detection** (calls 112 advice)
-- 🔒 **Medical-only query guard**
-- 💊 **Medicine suggestions** (Cheap / Moderate / Expensive in INR)
-- 🧠 **AI-powered diagnosis using Google Gemini**
-- ♻️ **Session-based patient memory**
-- 🖥️ **Simple & clean Streamlit UI**
+✅ Conversational medical symptom checker  
+✅ Step-by-step questioning (sequence-to-sequence interaction)  
+✅ Emergency symptom detection (safety first)  
+✅ Only answers medical-related queries  
+✅ Extracts structured data:
+- Symptoms  
+- Duration  
+- Temperature  
+- Severity  
+
+✅ Memory of entire session  
+✅ RAG (Retrieval Augmented Generation) for medical knowledge  
+✅ Diagnosis-style explanation  
+✅ 💊 Medicine recommendation system:
+- Exact medicine names  
+- Cheap vs Expensive comparison  
+- Dosage guidance  
+- Warnings  
+
+✅ 🎙️ Voice Assistant (Speech-to-Text)  
+✅ Modern medical-themed UI (custom CSS)
 
 ---
 
-## 🧩 Project Structure
+## 🧠 System Architecture
 
-medical_assistant/
+User Input (Text / Voice)  
+⬇  
+**app.py** (UI + session memory)  
+⬇  
+**agent/router.py** (Conversation controller)  
+⬇  
+Medical Logic + LLM + RAG  
+⬇  
+Diagnosis + Medicine Recommendation  
+
+---
+
+## 📁 Project Structure
+
+```
+medical_ai_agent/
 │
-├── app.py # Streamlit UI entry point
-├── requirements.txt # Python dependencies
-├── README.md # Project documentation
-├── .env # Environment variables (API key)
-├── .gitignore
+├── app.py                  → Streamlit UI + CSS + Chat Interface
+├── .env                    → API keys
 │
-├── llm/
-│ └── gemini_langchain.py # Gemini API integration
+├── agent/
+│   ├── router.py           → Main conversation logic
+│   ├── gemini_agent.py     → LLM API calls (Groq/Gemini)
+│   ├── memory.py           → Chat memory handling
+│   ├── prompt.py           → Prompt templates
 │
-└── logic/
-├── chat_controller.py # Main conversation flow
-├── diagnosis_flow.py # Adaptive questioning logic
-├── emergency.py # Emergency detection & message
-├── medical_guard.py # Medical-only question filter
-└── answer_guard.py # Follow-up answer validation            
-
----
-
-## 🧠 How It Works
-
-1. User starts chat
-2. Assistant asks **5 structured medical questions**
-3. Answers are stored in session memory
-4. Emergency keywords are checked **on every message**
-5. After all questions:
-   - Probable diagnosis
-   - Medicine options (INR)
-   - Home care advice
-   - Medical disclaimer
-
----
-
-## ⚠️ Emergency Detection
-
-The assistant immediately stops and shows an emergency alert if it detects:
-- Chest pain
-- Severe bleeding
-- Breathing difficulty
-- Seizures
-- Unconsciousness
-- Accidents or poisoning
-
-📞 **Emergency number used:** 112 (India)
-
----
-
-## 🔐 Medical Guard
-
-If the user asks **non-medical questions**, the assistant responds with:
-
-> ⚠️ I am designed to answer medical-related questions only.
-
-This ensures **domain safety**.
-
----
-
-## 🛠️ Installation & Setup
-
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/your-username/medical_assistant.git
-cd medical_assistant
-2️⃣ Create virtual environment (optional)
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-3️⃣ Install dependencies
-pip install -r requirements.txt
-4️⃣ Setup environment variables
-Create a .env file:
-streamlit run app.py
+├── medical_logic/
+│   ├── symptom_rules.py    → Extracts symptoms/duration/temp/severity
+│   ├── emergency.py        → Emergency detection
+│   ├── medicines.py        → Medicine recommendation engine
+│
+├── rag/
+│   ├── retriever.py        → Fetches medical knowledge
+│   ├── vectorstore.py      → Embedding storage
+│   ├── loader.py           → Loads documents
+│
+├── voice/
+│   ├── speech_to_text.py   → Voice input
+│   ├── text_to_speech.py   → Voice output
+│
+└── utils/
+    └── validators.py       → Medical query validation
 ```
 
-⚕️ Medical Disclaimer
+---
 
-This application is NOT a replacement for a licensed medical professional.
-The information provided is for educational purposes only.
-Always consult a qualified doctor for diagnosis and treatment.
+## ⚙️ Tech Stack
 
-🧪 Tech Stack
+| Category | Tools Used |
+|---------|-------------|
+| LLM | Groq (LLaMA 3) / Gemini |
+| Framework | Streamlit |
+| Voice | SpeechRecognition, pyttsx3 |
+| Memory | Session-based chat memory |
+| RAG | FAISS / LangChain retriever |
+| Backend | Python |
+| UI | Custom CSS in Streamlit |
 
-Python
+---
 
-Streamlit
+## 🎙️ Voice Support
 
-Google Gemini API
+The assistant can:
+- Listen to symptoms via microphone  
+- Convert speech to text  
+- Continue the medical questioning flow  
+- Provide final diagnosis + medicines  
 
-Session-based state management
+---
 
-Rule-based medical safety layers
+## 💊 Medicine System
 
-🌟 Future Enhancements
+The assistant suggests medicines based on symptoms and guidance logic:
 
-Patient history persistence (database)
+- Fever & pain relief  
+- Cold and flu support  
+- Dehydration & ORS  
+- Acidity & stomach issues  
+- Diarrhea care  
+- Sore throat relief  
 
-Multi-language support
+Each recommendation includes:
+✔ Exact medicine names  
+✔ Dosage guidance  
+✔ Cheap vs expensive options  
+✔ Safety warnings  
 
-Voice-based interaction
+---
 
-PDF prescription generation
+## 🚨 Safety Notice
 
-Doctor login panel
+This AI system is for **educational and informational purposes only**.  
+It is **not a substitute for a licensed doctor**.  
+In case of severe symptoms, always seek professional medical care.
 
-👨‍💻 Authors
+---
 
-1. Lokenath Banerjee
-B.Tech CSE (AI & ML)
-Haldia Institute of Technology
+## 🧾 Git Warning Note (Not an Error)
 
-2. Ayush Raj
-B.Tech CSE (AI & ML)
-Haldia Institute of Technology
+If you see messages like:
 
-3. Prakriti Dheeraj
-B.Tech CSE (AI & ML)
-Haldia Institute of Technology
+```
+LF will be replaced by CRLF the next time Git touches it
+```
 
-4. Manidipa Mandal
-B.Tech CSE (DS)
-Haldia Institute of Technology
+This is **not an error**.  
+It simply means Git is adjusting line endings between Linux and Windows formats.  
+It does not affect your project functionality.
 
-5. Raisa Sharfeen
-B.Tech CSE (AI & ML)
-Haldia Institute of Technology
+---
+
+## 👨‍💻 Authors
+
+| Name | Degree | Institute |
+|------|--------|------------|
+| **Lokenath Banerjee** | B.Tech CSE (AI & ML) | Haldia Institute of Technology |
+| **Ayush Raj** | B.Tech CSE (AI & ML) | Haldia Institute of Technology |
+| **Prakriti Dheeraj** | B.Tech CSE (AI & ML) | Haldia Institute of Technology |
+| **Manidipa Mandal** | B.Tech CSE (DS) | Haldia Institute of Technology |
+| **Raisa Sharfeen** | B.Tech CSE (AI & ML) | Haldia Institute of Technology |
+
+---
+
+## 🌟 Future Improvements
+
+- Disease probability scoring  
+- Prescription PDF generation  
+- Multilingual voice support  
+- Auto-filled consultation panel  
+- Patient history storage
