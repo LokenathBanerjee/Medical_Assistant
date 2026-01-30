@@ -1,0 +1,24 @@
+streamlit
+python-dotenv
+
+# LangChain (new structure)
+langchain
+langchain-core
+langchain-community
+langchain-google-genai
+
+# Google Gemini SDK
+google-generativeai
+
+# Vector DB / RAG
+faiss-cpu
+pypdf
+
+# Voice features
+SpeechRecognition
+pyttsx3
+
+# Optional but useful
+tiktoken
+
+groq
